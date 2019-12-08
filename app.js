@@ -3,10 +3,9 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const moment = require('moment-timezone');
-
-
-
 const app = express();
+
+const isAuthenticated = require('./utils/isAuthenticated');
 
 const accessLogStream = require('file-stream-rotator').getStream({
   filename: path.join(__dirname, 'logs', 'access_%DATE%.log'),
@@ -19,6 +18,8 @@ morgan.token('date', (req, res) => {
   return moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss.SSS ZZ');
 })
 morgan.format('myformat', '[:date] ":method :url" :status :res[content-length] - :response-time ms');
+
+
 
 // =================================================
 
@@ -35,8 +36,9 @@ const v1LoginRouter = require('./routes/v1/login');
 const v1UsersRouter = require('./routes/v1/users');
 
 //Router
-app.use('/api/v1/users', v1UsersRouter);
 app.use('/api/v1/login', v1LoginRouter);
+app.use('/api/v1/users', isAuthenticated, v1UsersRouter);
+
 
 
 //============================================================================
