@@ -19,7 +19,7 @@ if (!fs.existsSync(logDir)) {
 
 const dailyRotateFileTransport = new transports.DailyRotateFile({
   level: "debug",
-  filename: `${logDir}/node-dashboard_%DATE%.log`,
+  filename: `${logDir}/monitering-server_%DATE%.log`,
   datePattern: "YYYYMMDD",
   zippedArchive: true,
   maxSize: "20m",

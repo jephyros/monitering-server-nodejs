@@ -5,7 +5,6 @@ let secretObj = require("./jwt");
 
 module.exports  =  function (req, res, next) {
     let token = extractToken(req);
-    console.log(token);
     let decoded = jwt.verify(token, secretObj.secret);
     
 

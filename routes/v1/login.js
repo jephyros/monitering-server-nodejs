@@ -13,7 +13,7 @@ router.post("/auth", function (req, res, next) {
     },
         secretObj.secret,    // 비밀 키
         {
-            expiresIn: '5m'    // 유효 시간은 5분
+            expiresIn: '60m'    // 유효 시간은 60분
         })
 
     let userid = req.body.userid;
