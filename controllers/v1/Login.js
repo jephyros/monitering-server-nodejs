@@ -1,12 +1,14 @@
 "use strict";
-const Promise = require("bluebird");
+const PROMISE = require("bluebird");
 const jwt = require("jsonwebtoken");
 
 const secretObj = require("../../utils/jwt");
 const pool = require('../../utils/pool');
 const logger = require('../../utils/logger');
+const utils = require('../../utils/utils');
 
-exports.auth_POST =  (req, res, next) =>{
+
+exports.auth_POST = (req, res, next) => {
 
     // default : HMAC SHA256
     let token = jwt.sign({
@@ -34,34 +36,54 @@ exports.auth_POST =  (req, res, next) =>{
 }
 
 exports.signup_POST = (req, res, next) => {
-    logger.info('호출 : /api/v1/logins/ ');
-
+    
     let userid = req.body.userid;
+    let username = req.body.username;
+    let email = req.body.email;
     let password = req.body.password;
 
-    
 
-    let sql = "select userid,username,email from users limit ? ";
-    let param = [10];
-    
-    pool.excuteSql(sql, param)
+
+    //아이디중복체크후저장
+    pool.excuteSql("select userid,username,email from users where userid = ? ", [userid])
         .then((result) => {
-            res.status(200).json({
-                resultcode: "200",
-                resultmsg: "success",
-                resultdata: result
-            });
 
-        }).catch(err => {
+            if (result.length > 0) {
+                res.status(200).json({
+                    resultcode: "D01",
+                    resultmsg: "User ID is duplicated ",
+                    resultdata: ""
+                });
+            } else {
+                //데이터 저장 
+                pool.excuteSql("insert into users "
+                    + " ( userid,username,email,password,inserttime) values( ?,?,?,?, now())"
+                    , [userid,
+                        username,
+                        email,
+                        utils.encryptSHA2(password)
+                    ])
+                    .then((result) => {
+                        logger.info('회원가입 성공 : 아이디 <' + userid + '>');
+                        res.status(200).json({
+                            resultcode: "200",
+                            resultmsg: "success",
+                            resultdata: result
+                        });
+
+                    });
+            }
+        }).catch((err) => {
             logger.error(err.toString());
             res.status(500).json({
                 resultcode: "500",
-                resultmsg: "Error",
+                resultmsg: "ERROR",
                 resultdata: err.toString()
             });
-
-
         });
+
+
+
 
 
 }
