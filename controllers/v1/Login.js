@@ -10,28 +10,40 @@ const utils = require('../../utils/utils');
 
 exports.auth_POST = (req, res, next) => {
 
+    let userid = req.body.userid;
+    let password = req.body.password;
+
     // default : HMAC SHA256
     let token = jwt.sign({
-        email: "cis"   // 토큰의 내용(payload)
+        email: userid   // 토큰의 내용(payload)
     },
         secretObj.secret,    // 비밀 키
         {
             expiresIn: '60m'    // 유효 시간은 60분
-        })
+        }
+    );
 
-    let userid = req.body.userid;
-    let password = req.body.password;
+    pool.excuteSql("select password from users where userid = ? ", [userid])
+        .then((result) => {
+            
+            if (utils.encryptSHA2(password) == result[0].password) {
+                logger.info('로그인 성공 : 아이디 <' + userid + '>');
+                res.status(200).json({
+                    token: token
+                })
+            } else {
+                logger.info('로그인 실패 : 아이디 <' + userid + '>');
+                res.status(403).json({
+                    message: "403 Forbidden Error"
+                })
+            }
+        }).catch((err) => {
+                        logger.error(err.toString());
+            res.status(403).json({
+                message: "403 Forbidden Error"
+            })
+        });
 
-    if (password === "1234" && userid === userid) {
-        res.cookie("user", token);
-        res.status(200).json({
-            token: token
-        })
-    } else {
-        res.status(403).json({
-            message: "403 Forbidden Error"
-        })
-    }
 
 }
 
