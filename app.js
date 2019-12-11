@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const moment = require('moment-timezone');
+const cors = require('cors');
 const app = express();
 
 const isAuthenticated = require('./utils/isAuthenticated');
@@ -27,6 +28,7 @@ morgan.format('myformat', '[:date] ":method :url" :status :res[content-length] -
 app.use(morgan('combined', { stream: accessLogStream }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 
 //============================================================================
