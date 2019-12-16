@@ -1,4 +1,4 @@
-lslet jwt = require("jsonwebtoken");
+let jwt = require("jsonwebtoken");
 
 let secretObj = require("./jwt");
 
