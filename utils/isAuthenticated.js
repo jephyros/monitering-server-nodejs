@@ -1,21 +1,36 @@
-let jwt = require("jsonwebtoken");
+lslet jwt = require("jsonwebtoken");
 
 let secretObj = require("./jwt");
 
 
 module.exports  =  function (req, res, next) {
     let token = extractToken(req);
-    let decoded = jwt.verify(token, secretObj.secret);
+    //let decoded = jwt.verify(token, secretObj.secret);
+//    console.log('jwt error >>>>>>>>',decoded)
+
+    jwt.verify(token, secretObj.secret, function(err, decoded) {
+        if(err){
+            res.status(401).json({
+                message: "401 Unauthorized Error"
+              })
+            //return next(err);
+        }else{
+   
+            return next();
+       }    
+     });
+
     
 
-    if (decoded) {
-      return next();
+    // if (decoded) {
+    //   return next();
       
-    }else{
-      res.status(403).json({
-        message: "403 Forbidden Error"
-      })
-    }
+    // }else{
+    //   res.status(403).json({
+    //     message: "403 Forbidden Error"
+    //   })
+    // }
+    
     //res.redirect('/login');
     //res.render('login/login.ejs',{loginmessage : '해당메뉴에 권한이 없습니다. 로그인이 필요합니다.'});
   };
